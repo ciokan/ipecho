@@ -20,10 +20,6 @@ COPY . $GOPATH/src/gitlab.com/ciokan/ipecho
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /go/bin/ipecho
 
 FROM alpine:3.9
-RUN set -x \
-	&& apk update \
-	&& apk add --no-cache bash ca-certificates
-
 COPY --from=builder /go/bin/ipecho /usr/local/bin/ipecho
 COPY --from=builder /usr/local/bin/dumb-init /usr/local/bin/dumb-init
 RUN chmod +x /usr/local/bin/dumb-init
