@@ -1,0 +1,2 @@
+This container prints the ip address of the user accessing it via GET on port 8080.
+I use it on Kubernetes deployments to make sure the ip address of the visitor is properly forwarded and available to the services running on our clusters.
