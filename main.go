@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/julienschmidt/httprouter"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 type response struct {
@@ -15,18 +17,35 @@ type response struct {
 	ForwardedFor string `json:"forwarded_for"`
 }
 
-func getIP(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+func getIp(w http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
-	
+
 	ip, port, err := net.SplitHostPort(req.RemoteAddr)
 	if err != nil {
 		if jerr := json.NewEncoder(w).Encode(response{Error: err.Error()}); jerr != nil {
-			panic(jerr)
+			log.Fatalf("failed to encode json")
 		}
 	}
-	
+
 	forward := req.Header.Get("X-Forwarded-For")
-	
+
+	display := req.URL.Query().Get("display")
+
+	if display == "simple" {
+		switch req.URL.Query().Get("field") {
+		case "port":
+			fmt.Fprintf(w, port)
+			break
+		case "forwarded-for":
+			fmt.Fprintf(w, forward)
+			break
+		default:
+			fmt.Fprintf(w, ip)
+		}
+
+		return
+	}
+
 	if jerr := json.NewEncoder(w).Encode(response{
 		Ip:           ip,
 		Port:         port,
@@ -38,13 +57,13 @@ func getIP(w http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 
 func main() {
 	r := httprouter.New()
-	
-	r.GET("/", getIP)
-	
-	l, err := net.Listen("tcp", "0.0.0.0:8080")
+
+	r.GET("/", getIp)
+
+	l, err := net.Listen("tcp", ":8080")
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	log.Fatal(http.Serve(l, r))
 }
