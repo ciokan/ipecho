@@ -11,6 +11,18 @@ running on our clusters.
 The code is written in Go and uses very little
 resources. Example deployment on kubernetes:
 
+By default it outputs a json in the form of:
+
+`{"error":"","ip":"::1","port":"64061","forwarded_for":""}`
+
+The display can be switched to a `simple` format
+in which case it will print just the ip address
+(by default) or the field indicated via GET param
+`field`. Example:
+
+`http://localhost:8080/?display=simple` or
+`http://localhost:8080/?display=simple&field=port`
+
 ```
 kind: Deployment
 spec:
