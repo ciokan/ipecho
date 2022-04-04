@@ -1,4 +1,4 @@
-FROM golang:1.12.1-alpine3.9 as builder
+FROM golang:1.17-alpine3.15 as builder
 
 ENV GO111MODULE=on
 
@@ -19,7 +19,7 @@ COPY . $GOPATH/src/gitlab.com/ciokan/ipecho
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /go/bin/ipecho
 
-FROM alpine:3.9
+FROM alpine:3.15
 COPY --from=builder /go/bin/ipecho /usr/local/bin/ipecho
 COPY --from=builder /usr/local/bin/dumb-init /usr/local/bin/dumb-init
 RUN chmod +x /usr/local/bin/dumb-init
